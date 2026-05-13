@@ -938,8 +938,8 @@ int main() {
     
     cout << "*ptr = " << *ptr << endl;  // 5
     
-    // 修改指针指向的值
-    *ptr = 20;
+    // 解引用，修改指针指向的值
+    *ptr = 20; 
     cout << "a = " << a << endl;        // 20
     
     // 修改指针指向的地址
@@ -980,6 +980,8 @@ int main() {
 
 ### 动态内存分配
 
+**动态内存分配**是指在程序运行时（而非编译时）从堆（heap）上申请内存空间，并在不需要时手动释放。C++ 中通过 `new` / `delete` 或智能指针来完成。
+
 ```cpp
 #include <iostream>
 using namespace std;
@@ -1005,11 +1007,39 @@ int main() {
 }
 ```
 
+### 现代 C++ 解决方案：智能指针
+
+头文件 `<memory>` 提供三种智能指针，自动管理生命周期：
+
+- **`std::unique_ptr`**：独占所有权，不可复制，可移动。
+
+    ```cpp
+    auto p = std::make_unique<int>(42);
+    // 离开作用域自动 delete
+    ```
+
+- **`std::shared_ptr`**：共享所有权，引用计数归零时释放。
+
+    ```cpp
+    auto sp1 = std::make_shared<int>(10);
+    auto sp2 = sp1;   // 引用计数+1
+    // 都离开作用域后释放
+    ```
+
+- **`std::weak_ptr`**：配合 `shared_ptr` 打破循环引用。
+
+**推荐**：尽量使用智能指针，避免裸 `new/delete`。
+
 ### 空指针和野指针
+
+**空指针**：不指向任何有效内存地址的指针。通常用 `nullptr`（C++11）或 `NULL`（C 及早期 C++）初始化。
+
+**未初始化野指针**：指针变量在栈上定义时未赋予初值，其内容是随机垃圾地址。
 
 ```cpp
 int* nullPtr = nullptr;  // 空指针（C++11推荐）
 int* wildPtr;           // 野指针（未初始化，危险！）
+*wildPtr = 10;    // 危险！写入未知内存
 ```
 
 
@@ -1020,6 +1050,7 @@ int* wildPtr;           // 野指针（未初始化，危险！）
 引用是**变量的别名**，一旦初始化后就不能改变引用的目标。
 
 **语法：**
+
 ```cpp
 数据类型& 引用名 = 原变量名;
 ```
@@ -1286,7 +1317,7 @@ using namespace std;
 
 // 返回动态分配的数组
 int* createArray(int size) {
-    int* arr = new int[size];
+    int* arr = new int[size]; // new创建的是是堆区数组。int arr[5] = {1, 2, 3, 4, 5};这样创建的是栈区数组会被销毁。
     for (int i = 0; i < size; i++) {
         arr[i] = i * 10;
     }
@@ -1659,12 +1690,12 @@ int main() {
     str += " World";           // 追加
     str.append("!");           // 追加
     str.insert(5, " C++");     // 插入
-    str.replace(6, 5, "Earth"); // 替换
+    str.replace(6, 5, "Earth"); // 替换 (pos, count, new_string)
     
     cout << "Modified: " << str << endl; // Hello C++ Earth!
     
     // 4. 查找和子串
-    size_t pos = str.find("C++");
+    size_t pos = str.find("C++"); // 在字符串中查找子串或字符第一次出现的位置。
     if (pos != string::npos) {
         cout << "Found at position: " << pos << endl;
         string sub = str.substr(pos, 3); // 提取子串
@@ -3580,6 +3611,144 @@ std::cout << std::endl;
 // vec.cbegin() -> const 迭代器，用于只读访问
 ```
 
+### LeetCode 刷题常用
+
+#### `vector` 动态数组
+
+| 操作        | 示例                                                         | 说明                                           |
+| ----------- | ------------------------------------------------------------ | ---------------------------------------------- |
+| 构造        | `vector<int> v;` `vector<int> v(n, val);` `vector<int> v{1,2,3};` | 空；大小n，值val；列表初始化                   |
+| 添加元素    | `v.push_back(x);` `v.emplace_back(args...);`                 | 尾部添加；emplace更高效                        |
+| 访问        | `v[i]`（不检查边界） `v.at(i)`（抛异常） `v.front()` `v.back()` | 下标/安全访问/首/尾                            |
+| 删除        | `v.pop_back();` `v.erase(it);` `v.erase(first, last);`       | 删除尾部；删除迭代器指向元素；范围删除         |
+| 大小 & 容量 | `v.size()` `v.empty()` `v.capacity()` `v.reserve(n)` `v.shrink_to_fit()` | 元素个数；是否空；当前容量；预留空间；缩减容量 |
+| 修改        | `v.assign(n, val);` `v.swap(other);` `v.clear();`            | 重新赋值；交换；清空                           |
+| 迭代器      | `v.begin()` `v.end()` `v.rbegin()` `v.rend()`                | 正向/反向迭代器                                |
+| 排序/查找   | `sort(v.begin(), v.end());` `reverse(v.begin(), v.end());` `find(v.begin(), v.end(), val);` | 需 `<algorithm>`                               |
+
+#### `string` 字符串
+
+| 操作      | 示例                                                         | 说明                                |
+| --------- | ------------------------------------------------------------ | ----------------------------------- |
+| 构造      | `string s;` `string s(n, 'c');` `string s = "abc";`          | 空；n个字符；C字符串初始化          |
+| 访问      | `s[i]` `s.at(i)` `s.front()` `s.back()`                      | 同 vector                           |
+| 长度      | `s.size()` `s.length()` `s.empty()`                          | 无区别                              |
+| 拼接      | `s += t;` `s.append(t);` `s.push_back('c');`                 | 加一个字符串/字符                   |
+| 查找      | `s.find(sub, pos=0)` `s.rfind(sub)` `s.find_first_of(chars)` | 返回索引，`string::npos` 表示未找到 |
+| 子串      | `s.substr(pos, count)`                                       | 提取子串，count缺省则到结尾         |
+| 替换      | `s.replace(pos, count, new_str)`                             | 替换部分内容                        |
+| 插入/删除 | `s.insert(pos, str);` `s.erase(pos, count);`                 | 插入或删除子串                      |
+| 数值转换  | `stoi(s)` `stol(s)` `stoll(s)` `stod(s)` `to_string(val)`    | 字符串 ↔ 数字                       |
+
+#### `unordered_map` —— 哈希表（无序键值对）
+
+| 操作 | 示例                                                         | 说明                          |
+| ---- | ------------------------------------------------------------ | ----------------------------- |
+| 构造 | `unordered_map<string, int> mp;`                             | 空哈希表                      |
+| 插入 | `mp[key] = val;` `mp.emplace(key, val);` `mp.insert({key, val});` | 下标自动创建；emplace更高效   |
+| 访问 | `mp[key]`（会创建默认值） `mp.at(key)`（只读）               | 推荐用 `at` 避免意外创建      |
+| 查找 | `if (mp.find(key) != mp.end())` `mp.count(key)`              | find返回迭代器，count返回0或1 |
+| 删除 | `mp.erase(key);` `mp.erase(it);` `mp.clear();`               | 按键删除或按迭代器            |
+| 遍历 | `for (auto& [k, v] : mp)`                                    | C++17 结构化绑定              |
+| 大小 | `mp.size()` `mp.empty()`                                     | 元素个数                      |
+
+#### `unordered_set` —— 哈希集合
+
+| 操作 | 示例                                       | 说明       |
+| ---- | ------------------------------------------ | ---------- |
+| 构造 | `unordered_set<int> st;`                   |            |
+| 插入 | `st.insert(val);` `st.emplace(val);`       |            |
+| 查找 | `st.find(val) != st.end()` `st.count(val)` | 存在性检查 |
+| 删除 | `st.erase(val);` `st.erase(it);`           |            |
+| 遍历 | `for (int x : st)`                         | 无序       |
+
+#### `map` / `set` —— 有序红黑树
+
+| 操作 | `map` (键值对)                         | `set` (键集合)                         | 备注                           |
+| ---- | -------------------------------------- | -------------------------------------- | ------------------------------ |
+| 插入 | `mp[key] = val` / `insert({k,v})`      | `st.insert(val)`                       |                                |
+| 查找 | `mp.find(key)` / `mp.lower_bound(key)` | `st.find(val)` / `st.lower_bound(val)` | 有序，可范围查询               |
+| 遍历 | 默认升序，`rbegin()` 降序              | 同左                                   | 按 key 排序                    |
+| 特性 | 键唯一                                 | 元素唯一                               | `multimap`/`multiset` 允许多重 |
+
+#### `deque` —— 双端队列
+
+| 操作                                   | 说明                    |
+| -------------------------------------- | ----------------------- |
+| `push_front(x)` `pop_front()`          | 头操作 O(1)             |
+| `push_back(x)` `pop_back()`            | 尾操作 O(1)             |
+| `operator[]` `at()` `front()` `back()` | 随机访问                |
+| 其余类似 vector                        | 但删除/插入中间元素较慢 |
+
+**适用**：需要频繁在两端操作且要随机访问（如滑动窗口）。
+
+#### `stack` & `queue` & `priority_queue`
+
+#### `stack` (栈 LIFO)
+```cpp
+stack<int> st;
+st.push(x);       // 入栈
+st.pop();         // 出栈（无返回值）
+int top = st.top();  // 获取栈顶
+st.empty(); st.size();
+```
+
+#### `queue` (队列 FIFO)
+```cpp
+queue<int> q;
+q.push(x);        // 入队
+q.pop();          // 出队
+int front = q.front();  // 队首
+int back = q.back();    // 队尾
+```
+
+#### `priority_queue` (优先队列，最大堆)
+```cpp
+priority_queue<int> pq;               // 最大堆
+priority_queue<int, vector<int>, greater<int>> pq_min; // 最小堆
+pq.push(x);          // O(log n)
+pq.pop();            // O(log n)
+int top = pq.top();
+```
+
+#### 常用算法 ( `<algorithm>` )
+| 函数            | 用法                                                         | 说明                  |
+| --------------- | ------------------------------------------------------------ | --------------------- |
+| `sort`          | `sort(v.begin(), v.end())`                                   | 默认升序              |
+| `sort` 降序     | `sort(v.begin(), v.end(), greater<int>())`                   |                       |
+| `reverse`       | `reverse(v.begin(), v.end())`                                | 反转                  |
+| `max` / `min`   | `max(a,b)` `min({a,b,c})`                                    | 多值可用初始化列表    |
+| `max_element`   | `*max_element(v.begin(), v.end())`                           | 返回值，不是索引      |
+| `accumulate`    | `accumulate(v.begin(), v.end(), 0)`                          | 求和，需 `<numeric>`  |
+| `unique`        | `auto it = unique(v.begin(), v.end()); v.erase(it, v.end());` | 去重，需先排序        |
+| `lower_bound`   | `lower_bound(v.begin(), v.end(), x)`                         | 返回第一个 ≥ x 的位置 |
+| `upper_bound`   | `upper_bound(...)`                                           | 返回第一个 > x 的位置 |
+| `binary_search` | `binary_search(v.begin(), v.end(), x)`                       | 返回 bool             |
+
+#### 常用技巧封装
+- **哈希统计**：`unordered_map<char, int> freq; for (char c : s) freq[c]++;`
+- **计数数组**（值域小）：`vector<int> cnt(26, 0);`
+- **贪心取最值**：`priority_queue` 或 `multiset`
+- **双端队列**（滑动窗口最大值）：`deque` 保持单调
+
+#### 容器选择指南
+| 场景                         | 推荐容器                          |
+| ---------------------------- | --------------------------------- |
+| 需快速随机访问、尾部增删     | `vector`                          |
+| 频繁头部/尾部增删 + 随机访问 | `deque`                           |
+| 查找、去重、计数（无序）     | `unordered_set` / `unordered_map` |
+| 需要有序遍历、范围查询       | `set` / `map`                     |
+| 栈/深度优先搜索              | `stack`                           |
+| 队列/广度优先搜索            | `queue`                           |
+| 动态求最大/最小              | `priority_queue`                  |
+| 字符串处理                   | `string`                          |
+
+> 注：刷题时尽量用 `unordered_map`/`unordered_set` 获得 O(1) 均摊；除非题目要求顺序输出或需要范围查询才用 `map`/`set`。
+
+这份速查表覆盖 LeetCode 100 题中 90% 以上的容器操作，建议配合 IDE 自动补全使用。
+
+
+
 ### 总结
 
 | 操作类别      | 常用函数                                                     |
@@ -3996,6 +4165,40 @@ public:
     }
 };
 __AnonymousLambdaClass lambda(a); // 用 a 初始化
+```
+
+
+
+### 递归函数：使用lambda
+
+```cpp
+#include <iostream>
+
+int main() {
+    // 泛型 lambda (C++14) 接受 self 参数
+    auto factorial = [](auto&& self, int n) -> int {
+        if (n <= 1) return 1;
+        return n * self(self, n - 1);
+    };
+
+    // 调用时把自身作为第一个参数传入
+    std::cout << factorial(factorial, 5) << std::endl;  // 120
+}
+```
+
+C++23 引入了显式对象参数（`deducing this`），可以直接在 lambda 中使用 `this` 递归。
+
+```cpp
+#include <iostream>
+
+int main() {
+    auto factorial = [](this auto&& self, int n) -> int {
+        if (n <= 1) return 1;
+        return n * self(n - 1);
+    };
+
+    std::cout << factorial(5) << std::endl;  // 120
+}
 ```
 
 

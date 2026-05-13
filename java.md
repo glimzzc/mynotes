@@ -9317,7 +9317,7 @@ public class Server {
 ```java
 public class Client {
     public static void main(String[] args) throws IOException {
-        Socket s = new Socket(InetAddress.getLocalHost(), 9999);
+        Socket s = new Socket(InetAddress.getLocalHost(), 9999); // 实际传服务端ip与他开放的端口。
         System.out.println("client: " + s.getClass());
         
         // 获取输出流

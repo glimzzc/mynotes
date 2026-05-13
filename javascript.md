@@ -220,7 +220,7 @@ str.match(reg)
 
 str.search(reg)
 
-str.replace
+str.replace(pattern, replacement)
 
 str.split
 
@@ -229,6 +229,8 @@ str.splice
 str.substring
 
 str.concat
+
+str.startsWith()
 
 str.repeat
 
@@ -1282,11 +1284,11 @@ for (variable of iterable) {
 
 
 
-### 异常处理
+## 异常处理
 
 在 JavaScript 中，异常处理是通过 `try...catch` 语句实现的，允许捕获和处理运行时错误。异常处理机制主要包括 `try`、`catch`、`finally` 这三个部分。下面是详细的介绍：
 
-#### 1. `try` 块
+### 1. `try` 块
 
 `try` 块包含可能抛出错误的代码。当代码抛出异常时，程序会跳到 `catch` 块执行。
 
@@ -1297,7 +1299,7 @@ try {
 } 
 ```
 
-#### 2. `catch` 块
+### 2. `catch` 块
 
 `catch` 块用于捕获并处理 `try` 块中抛出的异常。`catch` 会接收一个参数，通常是一个错误对象，用于获取详细的错误信息。
 
@@ -1310,7 +1312,7 @@ try {
 }
 ```
 
-#### 3. `finally` 块
+### 3. `finally` 块
 
 `finally` 块中的代码无论 `try` 块是否抛出异常都会执行。通常用于清理操作，如关闭文件、释放资源等。
 
@@ -1324,7 +1326,7 @@ try {
 }
 ```
 
-#### 4. `throw` 语句
+### 4. `throw` 语句
 
 `throw` 用来手动抛出一个异常，可以是任何类型的值，通常是一个错误对象或字符串。
 
@@ -1339,7 +1341,7 @@ try {
 }
 ```
 
-#### 完整示例
+### 完整示例
 
 ```javascript
 function divide(a, b) {
@@ -1358,7 +1360,7 @@ function divide(a, b) {
 divide(10, 0);
 ```
 
-#### 错误对象（`Error` 对象）
+### 错误对象（`Error` 对象）
 
 当异常被抛出时，可以创建一个 `Error` 对象，它有几个常用的属性：
 
@@ -4734,9 +4736,17 @@ console.log(obj2);  // { a: 10, b: { c: 20 } }
 
 
 
+## Node
 
 
 
+```js
+let file = fs.readFileSync(path.join(__dirname, '../customized.html'), 'utf-8');      
+
+res.writeHead(200, { "Content-Type": "text/html" });
+res.write(file);
+res.end();
+```
 
 
 
